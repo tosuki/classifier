@@ -1,0 +1,6 @@
+*.o
+./project_spec.md
+./build/
+./coverage/
+./.vscode
+
