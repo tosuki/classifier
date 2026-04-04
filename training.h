@@ -3,13 +3,17 @@
 
 #include "network.h"
 
-int train_network(t_network *network, double **training_inputs,
-                  double **training_outputs);
-int error_rate(t_network *network, double **training_inputs,
-               double **training_outputs);
-int adjust_weights(t_network *network, double **training_inputs,
-                   double **training_outputs);
-int backpropagation(t_network *network, double **training_inputs,
-                    double **training_outputs);
+typedef struct training_example {
+  int expected_output_len;
+  int expected_output_allocated_mem;
+  int expected_output_len_used;
+  int *expected_output;
+} t_training_example;
+
+int create_training_example(t_training_example **example, int *expected_output,
+                            int expected_output_len);
+
+int feedforward_training_example(t_network *network,
+                                 t_training_example *example);
 
 #endif

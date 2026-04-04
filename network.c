@@ -30,7 +30,8 @@ static int insert_layer_to_network(t_network *network, t_neuron_layer *layer) {
 }
 
 /**
- * Cria a estrutura inicial da rede neural e aloca memória para o array de camadas.
+ * Cria a estrutura inicial da rede neural e aloca memória para o array de
+ * camadas.
  * @param network Ponteiro para o ponteiro da rede a ser criada.
  * @return 1 em caso de sucesso, 0 em caso de falha de alocação.
  */
@@ -65,7 +66,7 @@ int print_matrix(gsl_matrix *matrix) {
     }
     printf("\n");
   }
-  return 0;
+  return 1;
 }
 
 /**
@@ -79,7 +80,7 @@ int calculate_layer_output(t_neuron_layer *layer, t_neuron_layer *prev_layer) {
 
   if (!weights) {
     perror("Failed to allocate weights matrix");
-    exit(EXIT_FAILURE);
+    return 0;
   }
 
   // Matriz de inputs: [Anterior x 1]
@@ -88,7 +89,7 @@ int calculate_layer_output(t_neuron_layer *layer, t_neuron_layer *prev_layer) {
   if (!inputs) {
     gsl_matrix_free(weights);
     perror("Failed to allocate inputs matrix");
-    exit(EXIT_FAILURE);
+    return 0;
   }
 
   // Matriz de outputs (z): [Atual x 1]
@@ -98,7 +99,7 @@ int calculate_layer_output(t_neuron_layer *layer, t_neuron_layer *prev_layer) {
     gsl_matrix_free(weights);
     gsl_matrix_free(inputs);
     perror("Failed to allocate outputs matrix");
-    exit(EXIT_FAILURE);
+    return 0;
   }
 
   // Preenche a matriz de pesos
@@ -127,7 +128,7 @@ int calculate_layer_output(t_neuron_layer *layer, t_neuron_layer *prev_layer) {
   gsl_matrix_free(inputs);
   gsl_matrix_free(outputs);
 
-  return 0;
+  return 1;
 }
 
 /**
@@ -172,6 +173,12 @@ int create_neuron_layer(t_network *network, t_neuron_layer **layer,
 
     if (weights_count > 0) {
       neuron->weights = (double *)malloc(sizeof(double) * weights_count);
+
+      if (neuron->weights == NULL) {
+        perror("Failed to allocate weights for neuron");
+        return 0;
+      }
+
       for (int w = 0; w < weights_count; w++) {
         neuron->weights[w] = ((double)rand() / (double)RAND_MAX) - 0.5;
       }
@@ -188,14 +195,16 @@ int create_neuron_layer(t_network *network, t_neuron_layer **layer,
 }
 
 /**
- * Função de ativação Sigmoid: transforma qualquer valor real para o intervalo (0, 1).
+ * Função de ativação Sigmoid: transforma qualquer valor real para o intervalo
+ * (0, 1).
  * @param value Valor de entrada.
  * @return Valor transformado.
  */
 double activation_function(double value) { return 1.0 / (1.0 + exp(-value)); }
 
 /**
- * Libera toda a memória dinâmica da rede: neurônios, pesos, camadas e a própria rede.
+ * Libera toda a memória dinâmica da rede: neurônios, pesos, camadas e a própria
+ * rede.
  * @param network Ponteiro para a rede a ser destruída.
  */
 void free_network(t_network *network) {

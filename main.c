@@ -1,4 +1,6 @@
 #include "network.h"
+#include "training.h"
+
 #include <stdio.h>
 #include <time.h>
 

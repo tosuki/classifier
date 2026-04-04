@@ -51,7 +51,7 @@ int create_neuron_layer(t_network *network, t_neuron_layer **layer,
  * Realiza a operação matricial: output = activation(weights * inputs).
  * @param layer Camada atual (que receberá os novos valores).
  * @param prev_layer Camada anterior (que fornece os inputs).
- * @return 0 em caso de sucesso.
+ * @return 1 em caso de sucesso, 0 em caso de falha.
  */
 int calculate_layer_output(t_neuron_layer *layer, t_neuron_layer *prev_layer);
 

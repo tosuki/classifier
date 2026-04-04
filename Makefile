@@ -4,7 +4,7 @@ LDFLAGS :=
 LDLIBS := -lm -lgsl -lgslcblas
 
 TARGET := classifier
-SRC := main.c network.c
+SRC := main.c network.c training.c
 OBJ := $(SRC:.c=.o)
 
 .PHONY: all clean fclean re run
