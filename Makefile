@@ -6,9 +6,7 @@ LDLIBS := -lm -lgsl -lgslcblas
 TARGET := classifier
 SRC := main.c network.c training.c error.c
 OBJ := $(SRC:.c=.o)
-TEST_TARGET := param_test
-TEST_SRC := param_test.c param.c error.c
-TEST_LDLIBS := -lm
+TEST_BINS := param_test error_test network_test training_test
 
 .PHONY: all clean fclean re run test
 
@@ -23,14 +21,28 @@ $(TARGET): $(OBJ)
 run: $(TARGET)
 	./$(TARGET)
 
-test: $(TEST_SRC)
-	$(CC) $(CFLAGS) -o $(TEST_TARGET) $(TEST_SRC) $(TEST_LDLIBS)
-	./$(TEST_TARGET)
+param_test: param_test.c param.c error.c
+	$(CC) $(CFLAGS) -o $@ $^ -lm
+
+error_test: error_test.c error.c
+	$(CC) $(CFLAGS) -o $@ $^
+
+network_test: network_test.c network.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+
+training_test: training_test.c training.c network.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+
+test: $(TEST_BINS)
+	./param_test
+	./error_test
+	./network_test
+	./training_test
 
 clean:
 	rm -f $(OBJ)
 
 fclean: clean
-	rm -f $(TARGET) $(TEST_TARGET)
+	rm -f $(TARGET) $(TEST_BINS)
 
 re: fclean all
