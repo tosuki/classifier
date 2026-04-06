@@ -4,3 +4,10 @@
 ./coverage/
 ./.vscode
 
+# Build artifacts
+/classifier
+/param_test
+/error_test
+/network_test
+/training_test
+
