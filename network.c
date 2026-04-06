@@ -36,6 +36,10 @@ static int insert_layer_to_network(t_network *network, t_neuron_layer *layer) {
  * @return 1 em caso de sucesso, 0 em caso de falha de alocação.
  */
 int create_network(t_network **network) {
+  if (!network)
+    return 0;
+
+  *network = NULL;
   *network = (t_network *)malloc(sizeof(t_network));
   if (!*network)
     return 0;
@@ -73,7 +77,11 @@ int print_matrix(gsl_matrix *matrix) {
  * O calculo é matrix de pesos * matrix coluna de inputs.
  * Resultando no novo valor (value) para cada neurônio da camada atual.
  */
-int calculate_layer_output(t_neuron_layer *layer, t_neuron_layer *prev_layer) {
+int calculate_layer_output(t_neuron_layer *layer,
+                           const t_neuron_layer *prev_layer) {
+  if (!layer || !prev_layer || layer->nodes_len <= 0 || prev_layer->nodes_len <= 0)
+    return 0;
+
   // Matriz de pesos: [Atual x Anterior]
   gsl_matrix *weights =
       gsl_matrix_alloc(layer->nodes_len, prev_layer->nodes_len);
@@ -141,8 +149,8 @@ int calculate_layer_output(t_neuron_layer *layer, t_neuron_layer *prev_layer) {
  * @return 1 em caso de sucesso, 0 em caso de erro.
  */
 int create_neuron_layer(t_network *network, t_neuron_layer **layer,
-                        double *values, int values_len) {
-  if (!network || !values)
+                        const double *values, int values_len) {
+  if (!network || !layer || !values || values_len <= 0)
     return 0;
 
   *layer = (t_neuron_layer *)malloc(sizeof(t_neuron_layer));
@@ -231,7 +239,7 @@ void free_network(t_network *network) {
  * Exibe a arquitetura da rede no terminal de forma legível.
  * @param network Ponteiro para a rede a ser exibida.
  */
-void print_network(t_network *network) {
+void print_network(const t_network *network) {
   if (!network)
     return;
 

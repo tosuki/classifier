@@ -44,7 +44,7 @@ int create_network(t_network **network);
  * @return 1 em caso de sucesso, 0 em caso de falha.
  */
 int create_neuron_layer(t_network *network, t_neuron_layer **layer,
-                        double *values, int values_len);
+                        const double *values, int values_len);
 
 /**
  * Calcula os valores de saída de uma camada baseando-se nos valores da camada anterior.
@@ -53,7 +53,8 @@ int create_neuron_layer(t_network *network, t_neuron_layer **layer,
  * @param prev_layer Camada anterior (que fornece os inputs).
  * @return 1 em caso de sucesso, 0 em caso de falha.
  */
-int calculate_layer_output(t_neuron_layer *layer, t_neuron_layer *prev_layer);
+int calculate_layer_output(t_neuron_layer *layer,
+                           const t_neuron_layer *prev_layer);
 
 /**
  * Libera toda a memória alocada para a rede, incluindo camadas, neurônios e pesos.
@@ -65,7 +66,7 @@ void free_network(t_network *network);
  * Exibe no console a estrutura atual da rede, seus neurônios, valores e pesos.
  * @param network Ponteiro para a rede a ser impressa.
  */
-void print_network(t_network *network);
+void print_network(const t_network *network);
 
 // Funções de Cálculo
 
