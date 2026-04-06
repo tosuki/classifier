@@ -1,5 +1,7 @@
 #include "network.h"
+#include "error.h"
 
+#include <errno.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_matrix.h>
 
@@ -18,8 +20,10 @@ static int insert_layer_to_network(t_network *network, t_neuron_layer *layer) {
 
     t_neuron_layer **reallocated =
         realloc(network->layers, sizeof(t_neuron_layer *) * new_size);
-    if (!reallocated)
+    if (!reallocated) {
+      errno = MEM_ERROR;
       return 0;
+    }
 
     network->layers = reallocated;
     network->layers_allocated_mem = new_size;
@@ -36,13 +40,17 @@ static int insert_layer_to_network(t_network *network, t_neuron_layer *layer) {
  * @return 1 em caso de sucesso, 0 em caso de falha de alocação.
  */
 int create_network(t_network **network) {
-  if (!network)
+  if (!network) {
+    errno = INVALID_PARAMS;
     return 0;
+  }
 
   *network = NULL;
   *network = (t_network *)malloc(sizeof(t_network));
-  if (!*network)
+  if (!*network) {
+    errno = MEM_ERROR;
     return 0;
+  }
 
   (*network)->layers_len = 0;
   (*network)->layers_allocated_mem = INITIAL_LAYERS_ALLOCATED_MEM;
@@ -50,6 +58,7 @@ int create_network(t_network **network) {
       sizeof(t_neuron_layer *) * (*network)->layers_allocated_mem);
 
   if (!(*network)->layers) {
+    errno = MEM_ERROR;
     free(*network);
     *network = NULL;
     return 0;
@@ -79,8 +88,10 @@ int print_matrix(gsl_matrix *matrix) {
  */
 int calculate_layer_output(t_neuron_layer *layer,
                            const t_neuron_layer *prev_layer) {
-  if (!layer || !prev_layer || layer->nodes_len <= 0 || prev_layer->nodes_len <= 0)
+  if (!layer || !prev_layer || layer->nodes_len <= 0 || prev_layer->nodes_len <= 0) {
+    errno = INVALID_PARAMS;
     return 0;
+  }
 
   // Matriz de pesos: [Atual x Anterior]
   gsl_matrix *weights =
@@ -150,17 +161,22 @@ int calculate_layer_output(t_neuron_layer *layer,
  */
 int create_neuron_layer(t_network *network, t_neuron_layer **layer,
                         const double *values, int values_len) {
-  if (!network || !layer || !values || values_len <= 0)
+  if (!network || !layer || !values || values_len <= 0) {
+    errno = INVALID_PARAMS;
     return 0;
+  }
 
   *layer = (t_neuron_layer *)malloc(sizeof(t_neuron_layer));
-  if (!*layer)
+  if (!*layer) {
+    errno = MEM_ERROR;
     return 0;
+  }
 
   (*layer)->nodes_len = values_len;
   (*layer)->neurons = (t_neuron **)malloc(sizeof(t_neuron *) * values_len);
 
   if (!(*layer)->neurons) {
+    errno = MEM_ERROR;
     free(*layer);
     return 0;
   }
@@ -172,8 +188,10 @@ int create_neuron_layer(t_network *network, t_neuron_layer **layer,
 
   for (int i = 0; i < values_len; i++) {
     t_neuron *neuron = (t_neuron *)malloc(sizeof(t_neuron));
-    if (!neuron)
+    if (!neuron) {
+      errno = MEM_ERROR;
       return 0;
+    }
 
     neuron->value = values[i];
     neuron->weights_len = weights_count;
@@ -183,7 +201,8 @@ int create_neuron_layer(t_network *network, t_neuron_layer **layer,
       neuron->weights = (double *)malloc(sizeof(double) * weights_count);
 
       if (neuron->weights == NULL) {
-        perror("Failed to allocate weights for neuron");
+        errno = MEM_ERROR;
+        free(neuron);
         return 0;
       }
 

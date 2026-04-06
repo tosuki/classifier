@@ -1,19 +1,23 @@
 #include "training.h"
+#include "error.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 int create_training_example(t_training_example **example,
                             const int *expected_output,
                             int expected_output_len) {
-  if (!example || expected_output_len <= 0 || !expected_output)
+  if (!example || expected_output_len <= 0 || !expected_output) {
+    errno = INVALID_PARAMS;
     return 0;
+  }
 
   *example = NULL;
   (*example) = malloc(sizeof(t_training_example));
 
   if (!(*example)) {
-    perror("Failed to allocate training example");
+    errno = MEM_ERROR;
     return 0;
   }
 
@@ -23,9 +27,9 @@ int create_training_example(t_training_example **example,
   (*example)->expected_output = malloc(sizeof(int) * expected_output_len);
 
   if (!(*example)->expected_output) {
+    errno = MEM_ERROR;
     free(*example);
     *example = NULL;
-    perror("Failed to allocate expected output array");
     return 0;
   }
 
@@ -38,12 +42,16 @@ int create_training_example(t_training_example **example,
 
 int feedforward_training_example(t_network *network,
                                  const t_training_example *example) {
-  if (!network || !example || network->layers_len == 0)
+  if (!network || !example || network->layers_len == 0) {
+    errno = INVALID_PARAMS;
     return 0;
+  }
 
   if (network->layers[network->layers_len - 1]->nodes_len !=
-      example->expected_output_len)
+      example->expected_output_len) {
+    errno = INVALID_PARAMS;
     return 0;
+  }
 
   if (network->layers_len == 1) {
     for (int i = 0; i < network->layers[0]->nodes_len; i++) {
@@ -100,8 +108,10 @@ int backpropagation_training_example(t_network *network,
 }
 
 int free_training_example(t_training_example *example) {
-  if (!example)
+  if (!example) {
+    errno = INVALID_PARAMS;
     return 0;
+  }
 
   if (example->expected_output)
     free(example->expected_output);
