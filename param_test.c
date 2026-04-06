@@ -7,15 +7,6 @@
 
 static int g_failures = 0;
 
-static void free_network_param_data(t_network_param *param) {
-  if (!param) {
-    return;
-  }
-
-  free(param->params);
-  free(param);
-}
-
 static void expect_true(int condition, const char *message) {
   if (condition) {
     printf("[OK]   %s\n", message);
@@ -45,7 +36,7 @@ static void test_create_network_param_success(void) {
   expect_true(almost_equal(param->params[1], 2.0), "valor[1] copiado");
   expect_true(almost_equal(param->params[2], 3.5), "valor[2] copiado");
 
-  free_network_param_data(param);
+  free_network_param(&param);
 }
 
 static void test_create_network_param_invalid_args(void) {
@@ -99,8 +90,8 @@ static void test_write_and_read_roundtrip(void) {
   }
 
   remove(path);
-  free_network_param_data(written);
-  free_network_param_data(read_back);
+  free_network_param(&written);
+  free_network_param(&read_back);
 }
 
 static void test_io_invalid_args(void) {
@@ -129,7 +120,7 @@ static void test_io_invalid_args(void) {
   expect_true(ok == 0 && errno == INVALID_PARAMS,
               "read_param_from_file falha com path NULL");
 
-  free_network_param_data(param);
+  free_network_param(&param);
 }
 
 static void test_read_missing_file(void) {
@@ -141,12 +132,36 @@ static void test_read_missing_file(void) {
               "read_param_from_file falha ao abrir arquivo inexistente");
 }
 
+static void test_free_network_param(void) {
+  t_network_param *param = NULL;
+  double values[] = {7.0, 8.0};
+
+  int ok = create_network_param(&param, values, 2);
+  expect_true(ok == 1, "setup para free_network_param");
+
+  errno = 0;
+  ok = free_network_param(&param);
+  expect_true(ok == 1, "free_network_param libera estrutura válida");
+  expect_true(param == NULL, "free_network_param zera ponteiro");
+
+  errno = 0;
+  ok = free_network_param(NULL);
+  expect_true(ok == 0 && errno == INVALID_PARAMS,
+              "free_network_param falha com param_ptr NULL");
+
+  errno = 0;
+  ok = free_network_param(&param);
+  expect_true(ok == 0 && errno == INVALID_PARAMS,
+              "free_network_param falha com ponteiro já NULL");
+}
+
 int main(void) {
   test_create_network_param_success();
   test_create_network_param_invalid_args();
   test_write_and_read_roundtrip();
   test_io_invalid_args();
   test_read_missing_file();
+  test_free_network_param();
 
   if (g_failures != 0) {
     printf("\nResultado: %d teste(s) falharam.\n", g_failures);

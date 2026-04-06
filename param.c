@@ -121,3 +121,16 @@ int read_param_from_file(t_network_param **param_ptr, const char *file_path) {
   free(params);
   return res;
 }
+
+int free_network_param(t_network_param **param_ptr) {
+  if (!param_ptr || !(*param_ptr)) {
+    errno = INVALID_PARAMS;
+    return 0;
+  }
+
+  free((*param_ptr)->params);
+  free(*param_ptr);
+  *param_ptr = NULL;
+
+  return 1;
+}
