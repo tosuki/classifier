@@ -1,5 +1,5 @@
-#ifndef FS_H
-#define FS_H
+#ifndef PARAM_H
+#define PARAM_H
 
 typedef struct network_param {
     double *params;
