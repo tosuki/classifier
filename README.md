@@ -76,10 +76,10 @@ Ao rodar o projeto, você verá uma representação visual da rede antes e depoi
 - [x] Álgebra linear com GSL (feedforward básico).
 - [x] Função de ativação Sigmoid.
 - [x] Testes unitários (param, error, network, training).
+- [x] Carregamento/Salvamento de modelos a partir de arquivos binários.
 - [ ] **Armazenar `z` (saída linear pré-ativação) em cada neurônio.**
 - [ ] **Adicionar Bias em cada neurônio.**
 - [ ] Atualizar `calculate_layer_output()` para usar bias e armazenar z.
 - [ ] Implementação de Backpropagation e cálculo de gradientes.
 - [ ] Training loop com descida de gradiente.
 - [ ] Suporte para diferentes funções de ativação (ReLU, Tanh).
-- [ ] Carregamento/Salvamento de modelos a partir de arquivos binários.
